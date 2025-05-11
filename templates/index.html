@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+{% extends "headers.html" %}
+{% block content %}
+    <main>
+      <section class="hero">
+        <h1>Plan Your Next Adventure</h1>
+        <p>Discover amazing destinations and create unforgettable memories</p>
+      </section>
+
+      <section class="search-section">
+        <div class="search-container">
+          <form id="searchForm" action="/generate_itinerary" method="POST">
+            <div class="search-input">
+              <i class="fas fa-map-marker-alt"></i>
+              <input type="text" id="destination" name="destination" placeholder="Where do you want to go?" required />
+            </div>
+            <div class="search-input">
+              <i class="far fa-calendar-alt"></i>
+              <input type="date" id="startDate" name="startDate" placeholder="Start Date" required />
+            </div>
+            <div class="search-input">
+              <i class="far fa-calendar-alt"></i>
+              <input type="date" id="endDate" name="endDate" placeholder="End Date" required />
+            </div>
+            <button type="submit" class="search-button">Search</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="popular-destinations">
+        <h2>Popular Destinations</h2>
+        <div class="destination-grid">
+          <div class="destination-card" data-destination="Paris, France">
+            <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a" alt="Paris" />
+            <div class="destination-info">
+              <h3>Paris, France</h3>
+              <p>The City of Light</p>
+            </div>
+          </div>
+          <div class="destination-card" data-destination="Tokyo, Japan">
+            <img src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be" alt="Tokyo" />
+            <div class="destination-info">
+              <h3>Tokyo, Japan</h3>
+              <p>Where tradition meets future</p>
+            </div>
+          </div>
+          <div class="destination-card" data-destination="New York, USA">
+            <img src="https://images.unsplash.com/photo-1518391846015-55a9cc003b25" alt="New York" />
+            <div class="destination-info">
+              <h3>New York, USA</h3>
+              <p>The Big Apple</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chatbot Section -->
+      <section class="chatbot-section">
+        <h2>Chatbot for Assistance</h2>
+        <div class="chatbox-container">
+          <div class="chatbox">
+            <div class="chatbox-header">
+              <h3>Chat with us</h3>
+            </div>
+            <div class="chatbox-body" id="chatbox-body">
+              <p><strong>Bot:</strong> Hi! How can I assist you with your travel plans?</p>
+            </div>
+            <div class="chatbox-footer">
+              <input type="text" id="userInput" placeholder="Ask me something..." />
+              <button id="sendBtn">Send</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="container d-flex justify-content-center align-items-center">
+        <div class="text-center">
+          <img id="loading" style="display: none;" src="{{url_for('static',filename='loading.gif')}}" alt="Loading..." />
+        </div>
+      </div>
+    </main>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  .hero {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(rgba(37, 99, 235, 0.9), rgba(37, 99, 235, 0.9)),
+                url('img1.jpeg') center/cover;
+    color: white;
+  }
+  
+  .hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .hero p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+  }
+  
+  .search-section {
+    margin-top: -2rem;
+    padding: 0 2rem;
+    margin-bottom: 3rem;
+  }
+  
+  .search-container {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    gap: 1rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .search-input {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.25rem;
+  }
+  
+  .search-input i {
+    color: #6b7280;
+  }
+  
+  .search-input input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+  }
+  
+  .search-button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .search-button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .popular-destinations {
+    padding: 2rem;
+  }
+  
+  .popular-destinations h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    color: #1f2937;
+  }
+  
+  .destination-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .destination-card {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .destination-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .destination-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .destination-info {
+    padding: 1.5rem;
+  }
+  
+  .destination-info h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+  }
+  
+  .destination-info p {
+    color: #6b7280;
+  }
+
+  /* Chatbot Styles */
+  .chatbox-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+  }
+  
+  .chatbox {
+    width: 350px;
+    border: 2px solid #2563eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: #fff;
+  }
+  
+  .chatbox-header {
+    background-color: #2563eb;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .chatbox-body {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    font-size: 1rem;
+    background-color: #f9fafb;
+  }
+  
+  .chatbox-footer {
+    padding: 1rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .chatbox-footer input {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .chatbox-footer button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .chatbox-footer button:hover {
+    background-color: #1d4ed8;
+  }
+
+</style>
+
+<script>
+  // Extended Chatbot Logic with 65+ Full Sentences
+  document.getElementById("sendBtn").addEventListener("click", function() {
+    const userInput = document.getElementById("userInput").value.trim();
+    const chatboxBody = document.getElementById("chatbox-body");
+  
+    if (userInput !== "") {
+      chatboxBody.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
+  
+      let botResponse = "Sorry, I didn't quite understand that. Could you please rephrase it?";
+  
+      const lowerInput = userInput.toLowerCase();
+  
+      if (lowerInput.includes("suggest some destinations") || lowerInput.includes("recommend a place")) {
+        botResponse = "Sure! You can visit Paris, Tokyo, or New York for a wonderful experience.";
+      } else if (lowerInput.includes("what are the best travel destinations") || lowerInput.includes("top places to visit")) {
+        botResponse = "Top destinations include Paris, Tokyo, New York, and Bali!";
+      } else if (lowerInput.includes("how can i plan my trip")) {
+        botResponse = "Start by selecting your destination, setting travel dates, and planning activities in advance.";
+      } else if (lowerInput.includes("how can i book a hotel")) {
+        botResponse = "You can use travel platforms like Booking.com, Expedia, or directly contact hotels.";
+      } else if (lowerInput.includes("what should i pack for new york")) {
+        botResponse = "It depends on the season! Carry comfortable walking shoes, weather-appropriate clothes, and essentials.";
+      } else if (lowerInput.includes("how can i cancel my trip")) {
+        botResponse = "Please check the cancellation policy of your service provider or airline.";
+      } else if (lowerInput.includes("help me with travel tips")) {
+        botResponse = "Always carry a copy of your documents, stay hydrated, and respect local customs.";
+      } else if (lowerInput.includes("how many days are enough for paris")) {
+        botResponse = "A 4-5 day trip is ideal to explore major attractions in Paris.";
+      } else if (lowerInput.includes("can you suggest adventure destinations")) {
+        botResponse = "Sure! Consider visiting New Zealand, Costa Rica, or Switzerland for thrilling adventures.";
+      } else if (lowerInput.includes("what are some romantic destinations")) {
+        botResponse = "Paris, Venice, and Santorini are perfect romantic getaway spots!";
+      } else if (lowerInput.includes("do you offer travel insurance")) {
+        botResponse = "Currently, we do not offer travel insurance. Please consider checking with your provider.";
+      } else if (lowerInput.includes("do i need a visa to travel to japan")) {
+        botResponse = "Visa requirements depend on your nationality. Please check the Japanese embassy website.";
+      } else if (lowerInput.includes("is tokyo safe for tourists")) {
+        botResponse = "Yes! Tokyo is considered one of the safest cities in the world for tourists.";
+      } else if (lowerInput.includes("is paris safe at night")) {
+        botResponse = "Paris is generally safe, but be cautious around less crowded areas late at night.";
+      } else if (lowerInput.includes("what language is spoken in paris")) {
+        botResponse = "French is the primary language, but English is understood in tourist areas.";
+      } else if (lowerInput.includes("what is the currency used in paris")) {
+        botResponse = "The official currency in Paris is the Euro (€).";
+      } else if (lowerInput.includes("where can i shop in tokyo")) {
+        botResponse = "Shibuya, Shinjuku, and Ginza are famous shopping districts in Tokyo!";
+      } else if (lowerInput.includes("suggest a 5 day itinerary for paris")) {
+        botResponse = "Sure! Eiffel Tower, Louvre Museum, Notre-Dame, Seine Cruise, and a day trip to Versailles.";
+      } else if (lowerInput.includes("suggest a 7 day itinerary for japan")) {
+        botResponse = "Explore Tokyo, Kyoto, Osaka, Nara, and if possible, Hiroshima and Mount Fuji!";
+      } else if (lowerInput.includes("suggest cultural experiences in japan")) {
+        botResponse = "Attend a tea ceremony, visit temples like Senso-ji, and enjoy a kimono experience.";
+      } else if (lowerInput.includes("where can i find local food in tokyo")) {
+        botResponse = "Visit Tsukiji Market, street stalls in Asakusa, and restaurants in Shinjuku!";
+      } else if (lowerInput.includes("best time to visit paris")) {
+        botResponse = "The best time to visit Paris is from April to June and October to early November.";
+      } else if (lowerInput.includes("best time to visit japan")) {
+        botResponse = "Spring (March to May) and autumn (September to November) are the best times!";
+      } else if (lowerInput.includes("what are covid travel guidelines")) {
+        botResponse = "Please check the latest COVID-19 travel guidelines on official government websites before planning.";
+      } else if (lowerInput.includes("recommend some budget travel tips")) {
+        botResponse = "Book flights early, use public transportation, and stay in budget hotels or hostels.";
+      } else if (lowerInput.includes("tell me about famous landmarks in new york")) {
+        botResponse = "Statue of Liberty, Times Square, Central Park, and Empire State Building are must-visits!";
+      } else if (lowerInput.includes("how do i use public transport in paris")) {
+        botResponse = "Paris has a reliable Metro system, buses, and trams. Tickets can be bought at stations.";
+      } else if (lowerInput.includes("how can i commute in new york")) {
+        botResponse = "Use the subway, buses, yellow taxis, or simply walk for shorter distances.";
+      } else if (lowerInput.includes("what is the weather like in tokyo in april")) {
+        botResponse = "Tokyo in April has pleasant spring weather, perfect for cherry blossom viewing!";
+      } else if (lowerInput.includes("how expensive is traveling to paris")) {
+        botResponse = "Paris can be pricey, but you can save by booking in advance and choosing budget options.";
+      } else if (lowerInput.includes("what food should i try in japan")) {
+        botResponse = "Try sushi, ramen, okonomiyaki, takoyaki, and matcha desserts!";
+      } else if (lowerInput.includes("can you help me find a cheap hotel in paris")) {
+        botResponse = "Sure! Check out areas like Montmartre and Latin Quarter for affordable options.";
+      } else if (lowerInput.includes("what are must do activities in tokyo")) {
+        botResponse = "Visit Tokyo Tower, try sushi at Tsukiji, explore Harajuku, and watch sumo wrestling!";
+      } else if (lowerInput.includes("how do i get from tokyo to kyoto")) {
+        botResponse = "The Shinkansen bullet train is the fastest and most convenient way.";
+      } else if (lowerInput.includes("how do i travel around japan")) {
+        botResponse = "Use the JR Rail Pass for unlimited travel on major trains.";
+      } else if (lowerInput.includes("can i drink tap water in paris")) {
+        botResponse = "Yes! Tap water in Paris is safe to drink.";
+      } else if (lowerInput.includes("can i use credit cards in japan")) {
+        botResponse = "Yes, but cash is still widely used. Always carry some cash.";
+      } else if (lowerInput.includes("where can i see cherry blossoms in japan")) {
+        botResponse = "Ueno Park in Tokyo and Maruyama Park in Kyoto are famous spots!";
+      } else if (lowerInput.includes("how do i get from paris to versailles")) {
+        botResponse = "Take the RER C train from Paris to Versailles Château Rive Gauche station.";
+      } else if (lowerInput.includes("how much does it cost to visit eiffel tower")) {
+        botResponse = "Tickets cost around €10 to €26 depending on how high you want to go.";
+      } else if (lowerInput.includes("can you recommend day trips from paris")) {
+        botResponse = "Versailles, Giverny, and Loire Valley are great day trips!";
+      } else if (lowerInput.includes("should i tip in paris")) {
+        botResponse = "Tipping is appreciated but not mandatory; 5-10% is common if service is good.";
+      } else if (lowerInput.includes("should i tip in tokyo")) {
+        botResponse = "Tipping is not customary in Japan and can even be considered rude.";
+      } else if (lowerInput.includes("what is the emergency number in paris")) {
+        botResponse = "Dial 112 for any emergency in Paris.";
+      } else if (lowerInput.includes("what is the emergency number in tokyo")) {
+        botResponse = "Dial 110 for police and 119 for fire or ambulance services in Tokyo.";
+      } else if (lowerInput.includes("can you suggest best cafes in paris")) {
+        botResponse = "Try Café de Flore, Les Deux Magots, and Angelina Paris for a classic experience.";
+      } else if (lowerInput.includes("can you suggest nightlife spots in tokyo")) {
+        botResponse = "Shibuya, Shinjuku, and Roppongi are famous for Tokyo's vibrant nightlife.";
+      } else if (lowerInput.includes("how can i stay connected in japan")) {
+        botResponse = "Rent a pocket Wi-Fi or get a local SIM card for internet access.";
+      } else if (lowerInput.includes("how can i stay connected in paris")) {
+        botResponse = "Most hotels, cafes, and public areas offer free Wi-Fi. You can also buy a SIM card.";
+      } else if (lowerInput.includes("where can i find souvenirs in paris")) {
+        botResponse = "Visit Montmartre, Latin Quarter, or Champs-Élysées for souvenir shops.";
+      } else if (lowerInput.includes("where can i find souvenirs in tokyo")) {
+        botResponse = "Check out Nakamise Street in Asakusa and Takeshita Street in Harajuku!";
+      }
+  
+      chatboxBody.innerHTML += `<p><strong>Bot:</strong> ${botResponse}</p>`;
+      document.getElementById("userInput").value = "";
+      chatboxBody.scrollTop = chatboxBody.scrollHeight;
+    }
+  });
+  </script>
+  
+  
+  
+
+{% endblock %}
+</html>

@@ -1,0 +1,84 @@
+{% extends "headers.html" %}
+{% block content %}
+
+<!-- Main Content -->
+<main>
+  <div class="container">
+    <h1>Contact Us</h1>
+    <p class="display-7">
+      If you have any questions or suggestions, please feel free to contact us. We are always looking for ways to improve our service.
+    </p>
+    <div style="display: none;" class="alert alert-success" id="success-alert" role="alert">
+      Thank you for contacting us! We will get back to you soon.
+    </div>
+
+    <form id="form">
+      <div class="mb-3">
+        <label for="name" class="form-label">Name :</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ user_name }}">
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email :</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ user_email }}">
+      </div>
+      <div class="mb-3">
+        <label for="message" class="form-label">Message:</label>
+        <textarea class="form-control" id="message" name="message" rows="3"></textarea>
+      </div>
+
+      <!-- Hidden field to store time -->
+      <input type="hidden" name="time" id="time">
+
+      <input type="submit" class="btn btn-primary" id="button" value="Submit">
+    </form>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="jumbotron text-center text-black fixed-bottom" style="background-color: #ffffff;">
+  <div class="text-center p-3">
+    <p>&copy; {{ now.year }} Copyright</p>
+    <p>
+      Made With Love By
+      <a style="color: #090b0b; text-decoration: none;" href="#">NextStop</a>
+    </p>
+  </div>
+</footer>
+
+
+<!-- EmailJS CDN -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<!-- Initialize EmailJS -->
+<script type="text/javascript">
+  emailjs.init('NqSzf79EQsXwb4j4z'); // Replace with your EmailJS public key
+</script>
+
+<!-- Submit Logic -->
+<script>
+  const btn = document.getElementById('button');
+  const alerter = document.getElementById('success-alert');
+
+  document.getElementById('form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    btn.value = 'Submitting...';
+
+    // Set current time to hidden field
+    document.getElementById('time').value = new Date().toLocaleString();
+
+    const serviceID = 'service_clr9u0u';   // Replace with your service ID
+    const templateID = 'template_hglzc8b'; // Replace with your template ID
+
+    emailjs.sendForm(serviceID, templateID, this)
+      .then(() => {
+        alerter.style.display = 'block';
+        btn.value = 'Submitted';
+      }, (err) => {
+        btn.value = 'Submit';
+        alert('Error: ' + JSON.stringify(err));
+      });
+  });
+</script>
+
+{% endblock %}
